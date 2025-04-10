@@ -19,7 +19,6 @@ python-git>=0.1.0  # Additional Git utilities
 # Audio and video processing
 numpy>=2.2.4
 opencv-python>=4.11.0  # For screen recording tests
-wave  # Usually comes with Python, but explicitly listed
 
 # Utility dependencies
 filelock>=3.13.1
@@ -34,8 +33,10 @@ pysdl2-dll>=2.32.0  # SDL2 DLLs
 # On macOS: brew install git
 # On Windows: Download and install Git from https://git-scm.com/download/win
 
-# Note: tkinter is part of Python's standard library
-# If tkinter is not available, you need to install it with Python:
+# Note: Some modules are part of Python's standard library:
+# - tkinter: GUI toolkit
+# - wave: Audio file handling
+# If these are not available, you need to install them with Python:
 # - On Ubuntu/Debian: sudo apt-get install python3-tk
 # - On macOS: It should come with Python, but if not: brew install python-tk
 # - On Windows: It should come with Python, but if not: reinstall Python with "tcl/tk and IDLE" option
