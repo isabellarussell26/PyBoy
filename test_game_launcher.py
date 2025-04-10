@@ -26,13 +26,21 @@ def setup_game_launcher():
     mock_root.tk = MagicMock()  # Mock the tk attribute
     mock_root.children = {}  # Mock the children attribute
     mock_root.master = None  # Mock the master attribute
+    mock_root.winfo_screenwidth = MagicMock(return_value=1920)  # Add screen width
+    mock_root.winfo_screenheight = MagicMock(return_value=1080)  # Add screen height
+    mock_root.tk_focusNext = MagicMock()  # Add focus methods
+    mock_root.tk_focusPrev = MagicMock()
+    mock_root.tk_focusFollowsMouse = MagicMock()
     root = mock_root
 
     launcher = GameBoyLauncher(root)
 
     # Mock the Entry widgets and other components
     launcher.listbox = MagicMock(spec=tk.Listbox)
+    launcher.listbox.curselection = MagicMock(return_value=())
+    launcher.listbox.get = MagicMock(return_value="")
     launcher.search_var = MagicMock(spec=tk.StringVar)
+    launcher.search_var.get = MagicMock(return_value="")
     launcher.stats_label = MagicMock(spec=tk.Label)
 
     yield launcher, root
@@ -172,8 +180,9 @@ def test_game_filtering(setup_game_launcher, setup_rom_list):
     launcher, root = setup_game_launcher
     rom_list = setup_rom_list
     
-    # Mock ROM files
-    with patch('pathlib.Path.glob', return_value=rom_list.values()):
+    # Mock ROM files with platform-independent paths
+    rom_paths = [Path(str(path).replace('\\', '/')) for path in rom_list.values()]
+    with patch('pathlib.Path.glob', return_value=rom_paths):
         # Set search text
         launcher.search_var.get.return_value = "Pokemon"
         
@@ -183,6 +192,15 @@ def test_game_filtering(setup_game_launcher, setup_rom_list):
         # Verify listbox was updated
         launcher.listbox.delete.assert_called()
         launcher.listbox.insert.assert_called()
+        
+        # Verify the correct game was filtered
+        calls = launcher.listbox.insert.call_args_list
+        found_pokemon = False
+        for call in calls:
+            if "Pokemon" in str(call[0][1]):
+                found_pokemon = True
+                break
+        assert found_pokemon, "Pokemon game should be in filtered results"
 
 
 def test_game_launch(setup_game_launcher, setup_rom_list):
@@ -197,10 +215,23 @@ def test_game_launch(setup_game_launcher, setup_rom_list):
     launcher.listbox.curselection.return_value = (0,)
     launcher.listbox.get.return_value = "Pokemon Red.gb"
     
-    # Mock subprocess.Popen
-    with patch('subprocess.Popen') as mock_popen:
+    # Mock subprocess.Popen with platform-specific handling
+    mock_process = MagicMock()
+    mock_process.returncode = 0
+    
+    with patch('subprocess.Popen', return_value=mock_process) as mock_popen:
+        # Launch the game
         launcher.launch_game()
         
-        # Verify Popen was called with correct arguments
+        # Verify the process was started
         mock_popen.assert_called_once()
+        
+        # Get the command that was used to launch
+        launch_command = mock_popen.call_args[0][0]
+        
+        # Verify the command contains the game name
+        assert "Pokemon Red.gb" in str(launch_command)
+        
+        # Verify the command uses the correct ROM directory
+        assert str(launcher.rom_directory) in str(launch_command)
 
