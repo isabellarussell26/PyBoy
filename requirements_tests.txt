@@ -11,7 +11,6 @@ pillow>=9.1.0
 pyopengl>=3.1.7
 
 # Git and version control
-git>=2.42.0  # System-level Git
 GitPython>=3.1.41  # Python Git interface
 python-git>=0.1.0  # Additional Git utilities
 
