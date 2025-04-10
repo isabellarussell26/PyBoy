@@ -34,6 +34,3 @@ pysdl2-dll>=2.32.0  # SDL2 DLLs
 # On Ubuntu/Debian: sudo apt-get install git python3-tk python3-pip
 # On macOS: brew install git
 # On Windows: Download and install Git from https://git-scm.com/download/win
-
-# Ensure all dependencies are installed
---no-deps  # Don't install dependencies of dependencies
