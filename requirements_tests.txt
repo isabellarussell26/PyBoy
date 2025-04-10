@@ -9,7 +9,6 @@ pytest-mock>=3.12.0  # For mocking functionality
 # GUI and display dependencies
 pillow>=9.1.0
 pyopengl>=3.1.7
-tkinter  # Usually comes with Python, but explicitly listed
 ttkthemes>=3.2.2  # For themed widgets
 
 # Git and version control
@@ -34,3 +33,9 @@ pysdl2-dll>=2.32.0  # SDL2 DLLs
 # On Ubuntu/Debian: sudo apt-get install git python3-tk python3-pip
 # On macOS: brew install git
 # On Windows: Download and install Git from https://git-scm.com/download/win
+
+# Note: tkinter is part of Python's standard library
+# If tkinter is not available, you need to install it with Python:
+# - On Ubuntu/Debian: sudo apt-get install python3-tk
+# - On macOS: It should come with Python, but if not: brew install python-tk
+# - On Windows: It should come with Python, but if not: reinstall Python with "tcl/tk and IDLE" option
