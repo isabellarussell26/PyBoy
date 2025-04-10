@@ -1,11 +1,39 @@
 -r requirements.txt
+# Testing dependencies
+pytest>=8.0.0
+pytest-benchmark>=4.0.0
+pytest-xdist>=3.5.0
+pytest-lazy-fixtures>=0.6.3
+pytest-mock>=3.12.0  # For mocking functionality
+
+# GUI and display dependencies
 pillow>=9.1.0
-pytest>=6.0.0
-pytest-benchmark
-pytest-xdist
-pytest-lazy-fixtures
-pyopengl
-filelock
-cryptography
-GitPython
-matplotlib
+pyopengl>=3.1.7
+tkinter  # Usually comes with Python, but explicitly listed
+ttkthemes>=3.2.2  # For themed widgets
+
+# Git and version control
+git>=2.42.0  # System-level Git
+GitPython>=3.1.41  # Python Git interface
+python-git>=0.1.0  # Additional Git utilities
+
+# Audio and video processing
+numpy>=2.2.4
+opencv-python>=4.11.0  # For screen recording tests
+wave  # Usually comes with Python, but explicitly listed
+
+# Utility dependencies
+filelock>=3.13.1
+cryptography>=42.0.2
+matplotlib>=3.8.2
+pygame>=2.5.2  # For sound tests
+pysdl2>=0.9.17  # For display
+pysdl2-dll>=2.32.0  # SDL2 DLLs
+
+# System dependencies (these need to be installed separately)
+# On Ubuntu/Debian: sudo apt-get install git python3-tk python3-pip
+# On macOS: brew install git
+# On Windows: Download and install Git from https://git-scm.com/download/win
+
+# Ensure all dependencies are installed
+--no-deps  # Don't install dependencies of dependencies
