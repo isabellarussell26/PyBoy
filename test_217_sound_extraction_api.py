@@ -6,6 +6,7 @@ import time
 import numpy as np
 import wave
 import struct
+import json
 
 # Add the current directory to the path so we can import pyboy
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -16,14 +17,40 @@ def test_sound_extraction_api():
     Tests different sound scenarios and verifies the API works correctly.
     """
     print("\n=== Sound Extraction API Test (Issue #217) ===")
-    print("This test verifies that PyBoy can capture audio from GameBoy games.")
-    print("We'll use Tetris as it has clear sound effects at startup.\n")
+    print("This test verifies that PyBoy can capture audio from GameBoy games.")    
     
+    # Check if ROM directory exists
+    rom_dir = "roms"
+    if not os.path.exists(rom_dir):
+        print(f"Error: ROM directory '{rom_dir}' not found")
+        return
+        
     # Initialize PyBoy with a ROM that produces sound
-    rom_path = "ROMs/Tetris (USA) (Rev-A).gb"
+    rom_path = os.path.join(rom_dir, "Tetris (USA) (Rev-A).gb")
+    if not os.path.exists(rom_path):
+        print(f"Error: ROM file '{rom_path}' not found")
+        return
+        
     print(f"1. Loading ROM: {rom_path}")
     print("   Enabling sound emulation...")
-    pyboy_instance = pyboy.PyBoy(rom_path, sound_emulated=True)
+    
+    try:
+        keybinds = json.dumps({
+            "UP": "Up",
+            "DOWN": "Down",
+            "LEFT": "Left",
+            "RIGHT": "Right",
+            "A": "a",
+            "B": "s",
+            "START": "Return",
+            "SELECT": "BackSpace",
+        })
+        pyboy_instance = pyboy.PyBoy(rom_path, sound_emulated=True, keybinds=keybinds, window="SDL2")
+        # Set emulation speed to 1x (real-time)
+        pyboy_instance.set_emulation_speed(1)
+    except Exception as e:
+        print(f"Error initializing PyBoy: {str(e)}")
+        return
     
     print("\n2. Starting game sequence:")
     print("   - Pressing START to begin")
@@ -35,8 +62,6 @@ def test_sound_extraction_api():
     pyboy_instance.tick()
     pyboy_instance.send_input(WindowEvent.RELEASE_BUTTON_START)
     pyboy_instance.tick()
-    
-    # Press A to start game
     pyboy_instance.send_input(WindowEvent.PRESS_BUTTON_A)
     pyboy_instance.tick()
     pyboy_instance.send_input(WindowEvent.RELEASE_BUTTON_A)
@@ -88,7 +113,7 @@ def test_sound_extraction_api():
     pyboy_instance.stop()
     
     print("   Creating new instance with sound disabled...")
-    pyboy_instance = pyboy.PyBoy(rom_path, sound_emulated=False)
+    pyboy_instance = pyboy.PyBoy(rom_path, sound_emulated=False, keybinds=keybinds)
     
 
 
@@ -103,3 +128,4 @@ def test_sound_extraction_api():
 
 if __name__ == "__main__":
     test_sound_extraction_api() 
+#some snippets of code implemented by ai
