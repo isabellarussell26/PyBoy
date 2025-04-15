@@ -21,7 +21,7 @@ def test_screen_recorder_with_sound():
     
     # Initialize PyBoy with a ROM that produces sound
     #UPDATE HARDCODED ROM PATH BELOW
-    rom_path = "roms/Tetris (USA) (Rev-A).gb"
+    rom_path = "roms/Wario Land - Super Mario Land 3 (World).gb"
     print(f"1. Loading ROM: {rom_path}")
     print("   Enabling sound and screen recording...")
     

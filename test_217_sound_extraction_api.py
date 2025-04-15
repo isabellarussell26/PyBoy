@@ -26,7 +26,7 @@ def test_sound_extraction_api():
         return
         
     # Initialize PyBoy with a ROM that produces sound
-    rom_path = os.path.join(rom_dir, "Tetris (USA) (Rev-A).gb")
+    rom_path = os.path.join(rom_dir, "Wario Land - Super Mario Land 3 (World).gb")
     if not os.path.exists(rom_path):
         print(f"Error: ROM file '{rom_path}' not found")
         return
