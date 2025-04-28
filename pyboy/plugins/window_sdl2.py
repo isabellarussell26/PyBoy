@@ -5,6 +5,7 @@
 
 from array import array
 import time
+import ast  #  MODIFIED CODE: ANDREW JANEDY
 from ctypes import POINTER, c_ubyte, c_void_p, cast
 
 from pyboy.plugins.base_plugin import PyBoyWindowPlugin
@@ -128,6 +129,30 @@ def sdl2_event_pump(events):
                     mouse_scroll_y=event.wheel.y,
                 )
             )
+
+            """ ####################### MODIFIED CODE: ANDREW JANEDY ############################################### """
+        elif event.type == sdl2.SDL_MOUSEBUTTONDOWN:  # <---- INSERT THIS BLOCK HERE
+            mouse_button_code = -1
+            if event.button.button == sdl2.SDL_BUTTON_LEFT:
+                mouse_button_code = sdl2.SDL_BUTTON_LEFT
+            elif event.button.button == sdl2.SDL_BUTTON_RIGHT:
+                mouse_button_code = sdl2.SDL_BUTTON_RIGHT
+
+            if mouse_button_code in KEY_DOWN:
+                events.append(KEY_DOWN[mouse_button_code])
+        elif event.type == sdl2.SDL_MOUSEMOTION or event.type == sdl2.SDL_MOUSEBUTTONUP:
+            mouse_button_code = -1
+            if event.type == sdl2.SDL_MOUSEBUTTONUP:
+                if event.button.button == sdl2.SDL_BUTTON_LEFT:
+                    mouse_button_code = sdl2.SDL_BUTTON_LEFT
+                elif event.button.button == sdl2.SDL_BUTTON_RIGHT:
+                    mouse_button_code = sdl2.SDL_BUTTON_RIGHT
+
+                if mouse_button_code in KEY_UP:
+                    events.append(KEY_UP[mouse_button_code])
+
+            """ ####################### MODIFIED CODE: ANDREW JANEDY ############################################### """
+
         elif event.type == sdl2.SDL_MOUSEMOTION or event.type == sdl2.SDL_MOUSEBUTTONUP:
             mouse_button = -1
             if event.type == sdl2.SDL_MOUSEBUTTONUP:
@@ -187,6 +212,44 @@ class WindowSDL2(PyBoyWindowPlugin):
 
         # Helps Cython access mb.sound
         self.init_audio(mb)
+
+        """ ############################## MODIFIED CODE: ANDREW JANEDY ############################################ """
+
+        self._apply_keybindings(pyboy_argv.get('keybinds'))
+
+    def _parse_keybind_string(self, keybind_string):  # MODIFIED CODE: ANDREW JANEDY
+        parsed_keybinds = {}
+        if keybind_string:
+            try:
+                keybind_dict = ast.literal_eval(keybind_string)
+                for event_name_lower, sdl_key_name in keybind_dict.items():
+                    event_name_upper = event_name_lower.upper()
+                    try:
+                        event_member = getattr(WindowEvent, event_name_upper)
+                        parsed_keybinds[getattr(sdl2, sdl_key_name)] = event_member
+                    except AttributeError:
+                        logger.warning(f"Invalid key or event name in config: {event_name_lower}: {sdl_key_name}")
+            except (SyntaxError, ValueError):
+                logger.warning("Invalid keybinding string format.")
+        return parsed_keybinds
+
+    def _apply_keybindings(self, keybind_string):  # MODIFIED CODE: ANDREW JANEDY
+        global KEY_DOWN, KEY_UP
+        KEY_DOWN.clear()
+        KEY_UP.clear()
+        if keybind_string:
+            new_keybinds = self._parse_keybind_string(keybind_string)
+            for sdl_key_code, event_value in new_keybinds.items():
+                if event_value in [WindowEvent.PRESS_ARROW_UP, WindowEvent.PRESS_ARROW_DOWN, WindowEvent.PRESS_ARROW_LEFT, WindowEvent.PRESS_ARROW_RIGHT, WindowEvent.PRESS_BUTTON_A, WindowEvent.PRESS_BUTTON_B, WindowEvent.PRESS_BUTTON_START, WindowEvent.PRESS_BUTTON_SELECT]:
+                    KEY_DOWN[sdl_key_code] = WindowEvent(event_value)
+                    # Automatically generate the corresponding RELEASE event value
+                    release_event_value = event_value + 8 # Assuming RELEASE events are consistently 8 values after PRESS events
+                    if release_event_value in [WindowEvent.RELEASE_ARROW_UP, WindowEvent.RELEASE_ARROW_DOWN, WindowEvent.RELEASE_ARROW_LEFT, WindowEvent.RELEASE_ARROW_RIGHT, WindowEvent.RELEASE_BUTTON_A, WindowEvent.RELEASE_BUTTON_B, WindowEvent.RELEASE_BUTTON_START, WindowEvent.RELEASE_BUTTON_SELECT]:
+                        KEY_UP[sdl_key_code] = WindowEvent(release_event_value)
+                    else:
+                        logger.warning(f"Could not find corresponding RELEASE event for {WindowEvent(event_value)}")
+
+    """ ############################## END MODIFIED CODE ############################################################"""
 
     def init_audio(self, mb):
         if mb.sound.emulate:

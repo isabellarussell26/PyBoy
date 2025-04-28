@@ -5,7 +5,6 @@
 
 import pyboy
 from pyboy.utils import STATE_VERSION, PyBoyException, PyBoyOutOfBoundsException
-from .botsupport import BotSupport #added by Justice Russell for benchmark suite
 
 from . import bootrom, cartridge, cpu, interaction, lcd, ram, sound, timer
 
@@ -89,9 +88,6 @@ class Motherboard:
         self.breakpoint_singlestep = False
         self.breakpoint_singlestep_latch = False
         self.breakpoint_waiting = -1
-
-        self.bot = BotSupport(self) #added by Justice Russell
-
 
     def switch_speed(self):
         bit0 = self.key1 & 0b1

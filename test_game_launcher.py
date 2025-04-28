@@ -31,7 +31,7 @@ def setup_game_launcher():
     launcher = GameBoyLauncher(root)
 
     # Mock the Entry widgets and other components
-    launcher.listbox = MagicMock(spec=tk.Listbox)
+    launcher.rom_listbox = MagicMock(spec=tk.Listbox)
     launcher.search_var = MagicMock(spec=tk.StringVar)
     launcher.stats_label = MagicMock(spec=tk.Label)
 
@@ -61,33 +61,17 @@ def setup_keybinds_config(setup_game_launcher):
     """
     launcher, root = setup_game_launcher
     keybinds = {
-        "PRESS_ARROW_RIGHT": "Right",
-        "PRESS_ARROW_LEFT": "Left",
-        "PRESS_ARROW_UP": "Up",
-        "PRESS_ARROW_DOWN": "Down",
-        "PRESS_BUTTON_a": "a",
-        "PRESS_BUTTON_b": "s",
-        "PRESS_BUTTON_START": "Return",
-        "PRESS_BUTTON_SELECT": "Backspace"
+        "UP": "Up",
+        "DOWN": "Down",
+        "LEFT": "Left",
+        "RIGHT": "Right",
+        "A": "a",
+        "S": "s",
+        "START": "Return",
+        "SELECT": "BackSpace"
     }
     
-    # Create a mock Toplevel window
-    mock_toplevel = MagicMock(spec=tk.Toplevel)
-    mock_toplevel.title = MagicMock()
-    mock_toplevel.geometry = MagicMock()
-    mock_toplevel.configure = MagicMock()
-    mock_toplevel.grid_rowconfigure = MagicMock()
-    mock_toplevel.destroy = MagicMock()
-    mock_toplevel.tk = root.tk  # Add the tk attribute from root
-    
-    # Mock Label and Button classes
-    mock_label = MagicMock(spec=tk.Label)
-    mock_button = MagicMock(spec=tk.Button)
-    
-    with patch('tkinter.Toplevel', return_value=mock_toplevel), \
-         patch('tkinter.Label', return_value=mock_label), \
-         patch('tkinter.Button', return_value=mock_button):
-        keybinds_config = KeybindsConfig(launcher, keybinds)
+    keybinds_config = KeybindsConfig(root, keybinds)
     
     # Mock the buttons
     keybinds_config.buttons = {
@@ -121,14 +105,14 @@ def test_game_launcher_initialization(setup_game_launcher):
     
     # Verify keybinds are initialized
     assert isinstance(launcher.keybinds, dict)
-    assert "PRESS_ARROW_UP" in launcher.keybinds
-    assert "PRESS_ARROW_DOWN" in launcher.keybinds
-    assert "PRESS_ARROW_LEFT" in launcher.keybinds
-    assert "PRESS_ARROW_RIGHT" in launcher.keybinds
-    assert "PRESS_BUTTON_a" in launcher.keybinds
-    assert "PRESS_BUTTON_b" in launcher.keybinds
-    assert "PRESS_BUTTON_START" in launcher.keybinds
-    assert "PRESS_BUTTON_SELECT" in launcher.keybinds
+    assert "UP" in launcher.keybinds
+    assert "DOWN" in launcher.keybinds
+    assert "LEFT" in launcher.keybinds
+    assert "RIGHT" in launcher.keybinds
+    assert "A" in launcher.keybinds
+    assert "S" in launcher.keybinds
+    assert "START" in launcher.keybinds
+    assert "SELECT" in launcher.keybinds
     
     # Verify window properties
     assert launcher.root == root
@@ -167,10 +151,10 @@ def test_keybind_update(setup_keybinds_config):
     mock_event.keysym = "w"
     
     # Update a keybind
-    keybinds_config.update_binding("PRESS_ARROW_UP", "w", keybinds_config.buttons["PRESS_ARROW_UP"])
+    keybinds_config.update_binding("UP", "w", keybinds_config.buttons["UP"])
     
     # Verify the keybind was updated
-    assert keybinds_config.keybinds["PRESS_ARROW_UP"] == "w"
+    assert keybinds_config.keybinds["UP"] == "w"
 
 
 def test_rom_directory_change(setup_game_launcher):
@@ -199,21 +183,21 @@ def test_game_filtering(setup_game_launcher, setup_rom_list):
     # Mock the ROM files
     with patch('pathlib.Path.glob', return_value=rom_list.values()):
         # Mock listbox methods (delete and insert)
-        launcher.listbox.delete = MagicMock()
-        launcher.listbox.insert = MagicMock()
+        launcher.rom_listbox.delete = MagicMock()
+        launcher.rom_listbox.insert = MagicMock()
 
         # Set a search term
-        search_term = "Pokemon"  # Use a term that matches one of our test games
+        search_term = ("Wario")  # Use a generic term that can match multiple games
         launcher.search_var.get.return_value = search_term
 
         # Call filter function
         launcher.filter_games()
 
         # Verify that the listbox's insert method was called
-        launcher.listbox.insert.assert_called()
+        launcher.rom_listbox.insert.assert_called()
 
         # Check that the insert method was called with a game containing the search term
-        inserted_args = [call[0][1] for call in launcher.listbox.insert.call_args_list]
+        inserted_args = [call[0][1] for call in launcher.rom_listbox.insert.call_args_list]
         assert any(search_term.lower() in game.lower() for game in inserted_args), \
             f"Expected some game to contain the term '{search_term}'"
 
@@ -227,13 +211,11 @@ def test_game_launch(setup_game_launcher, setup_rom_list):
     rom_list = setup_rom_list
     
     # Mock selected game
-    launcher.listbox.curselection.return_value = (0,)
-    launcher.listbox.get.return_value = "Pokemon Red.gb"  # Use a game from our test ROM list
+    launcher.rom_listbox.curselection.return_value = (0,)
+    launcher.rom_listbox.get.return_value = "Wario Land - Super Mario Land 3 (World).gb" # Change this to a gb located in your ROM directory
     
-    # Mock both os.path.exists and pathlib.Path.exists to return True
-    with patch('os.path.exists', return_value=True), \
-         patch('pathlib.Path.exists', return_value=True), \
-         patch('subprocess.Popen') as mock_popen:
+    # Mock subprocess.Popen
+    with patch('subprocess.Popen') as mock_popen:
         launcher.launch_game()
         
         # Verify Popen was called with correct arguments
