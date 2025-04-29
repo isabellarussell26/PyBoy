@@ -12,6 +12,7 @@ from tkhtmlview import HTMLLabel
 from pyboy.pyboy import PyBoy
 from screen_recording import VideoCreator
 import numpy as np
+import markdown
 
 
 class GameBoyLauncher:
@@ -206,19 +207,43 @@ class GameBoyLauncher:
 
     def load_roms(self):
         self.games.clear()
-        roms_dir = self.rom_directory
-        if roms_dir is None:
-            self.rom_listbox.insert(tk.END, "Please select a ROM directory in Settings.") # changed
+        self.rom_listbox.delete(0, tk.END)
+        
+        if self.rom_directory is None:
+            self.rom_listbox.insert(tk.END, "Please select a ROM directory in Settings.")
             self.stats_label.configure(text="NO ROM DIRECTORY SELECTED")
-        elif roms_dir.exists():
-            for file in roms_dir.glob("*.gb"):
-                self.games.append(file.name.strip())
+            self.status_var.set("NO ROM DIRECTORY SELECTED")
+            return
+            
+        try:
+            if not self.rom_directory.exists():
+                self.rom_listbox.insert(tk.END, "ROM directory not found. Please select a valid directory.")
+                self.stats_label.configure(text="ROM DIRECTORY NOT FOUND")
+                self.status_var.set("ROM DIRECTORY NOT FOUND")
+                return
+                
+            # Find all .gb files in the directory
+            rom_files = list(self.rom_directory.glob("*.gb"))
+            if not rom_files:
+                self.rom_listbox.insert(tk.END, "No ROM files found in the selected directory.")
+                self.stats_label.configure(text="NO ROMS FOUND")
+                self.status_var.set("NO ROMS FOUND")
+                return
+                
+            # Add found ROMs to the list
+            for file in rom_files:
+                self.games.append(file.name)
             self.games.sort()
+            
+            # Update the UI
             self.update_listbox()
             self.update_stats()
-        else:
-            self.status_var.set("ROM DIRECTORY NOT FOUND")
-            self.rom_listbox.insert(tk.END, "ROMs directory not found.")
+            self.status_var.set("ROMS LOADED SUCCESSFULLY")
+            
+        except Exception as e:
+            self.rom_listbox.insert(tk.END, f"Error loading ROMs: {str(e)}")
+            self.stats_label.configure(text="ERROR LOADING ROMS")
+            self.status_var.set("ERROR LOADING ROMS")
 
     def update_stats(self):
         self.stats_label.configure(text=f"AVAILABLE ROMS: {len(self.games)}")
@@ -226,7 +251,6 @@ class GameBoyLauncher:
     def update_listbox(self):
         self.rom_listbox.delete(0, tk.END)
         for game in self.games:
-            game = game.replace('.gb', '')
             self.rom_listbox.insert(tk.END, f" {game}")
         self.update_stats()
 
@@ -248,48 +272,70 @@ class GameBoyLauncher:
         """Launch the selected game with PyBoy and record screen if enabled."""
         selection = self.rom_listbox.curselection()
         if len(selection) == 0:
+            self.status_var.set("NO GAME SELECTED")
             return
-        game_name = self.rom_listbox.get(selection[0]).strip()
-        game_name = game_name + ".gb"
-        rom_path = os.path.abspath(os.path.join(self.rom_directory, game_name))
-
-        if not os.path.exists(rom_path):
-            self.status_var.set("ROM NOT FOUND")
-            return
-
-        self.status_var.set(f"LAUNCHING {game_name.upper()}...")
-        self.root.update()
-
+            
         try:
-            if self.remapped_keys:
-                keybinds = json.dumps(self.remapped_keys)
-                pyboy = PyBoy(rom_path, keybinds=keybinds)
-            else:
-                pyboy = PyBoy(rom_path)
+            # Get the selected game name from the listbox
+            selected_game = self.rom_listbox.get(selection[0]).strip()
+            
+            # Find the matching game in our games list
+            matching_game = None
+            for game in self.games:
+                if game == selected_game:
+                    matching_game = game
+                    break
+            
+            if not matching_game:
+                self.status_var.set(f"GAME NOT FOUND: {selected_game}")
+                return
+                
+            if not self.rom_directory:
+                self.status_var.set("NO ROM DIRECTORY SET")
+                return
+                
+            rom_path = self.rom_directory / matching_game
+            
+            if not rom_path.exists():
+                self.status_var.set(f"ROM NOT FOUND: {matching_game}")
+                return
 
-            if self.screen_record and self.recording_directory:
-                output_filename = f"{game_name.replace('.gb', '').replace(' ', '_')}_{time.strftime('%m.%d.%Y_%H.%M.%S')}.mp4"
-                output_path = os.path.join(self.recording_directory, output_filename)
-                self.video_creator = VideoCreator(pyboy, output_path=output_path)
-            elif self.screen_record and not self.recording_directory:
-                self.status_var.set("SCREEN RECORDING DIRECTORY NOT SET")
-                self.screen_record = False # Disable recording if no directory
-                # Optionally inform the user here
-            else:
-                self.video_creator = None
+            self.status_var.set(f"LAUNCHING {matching_game.upper()}...")
+            self.root.update()
 
-            while pyboy.tick():
+            try:
+                if self.remapped_keys:
+                    keybinds = json.dumps(self.remapped_keys)
+                    pyboy = PyBoy(str(rom_path), keybinds=keybinds)
+                else:
+                    pyboy = PyBoy(str(rom_path))
+
+                if self.screen_record and self.recording_directory:
+                    output_filename = f"{matching_game.replace('.gb', '').replace(' ', '_')}_{time.strftime('%m.%d.%Y_%H.%M.%S')}.mp4"
+                    output_path = os.path.join(self.recording_directory, output_filename)
+                    self.video_creator = VideoCreator(pyboy, output_path=output_path)
+                elif self.screen_record and not self.recording_directory:
+                    self.status_var.set("SCREEN RECORDING DIRECTORY NOT SET")
+                    self.screen_record = False
+                else:
+                    self.video_creator = None
+
+                while pyboy.tick():
+                    if self.screen_record and self.video_creator:
+                        self.video_creator.video_frames.append(np.array(pyboy.screen.image))
+                        self.video_creator.audio_frames.append(pyboy.sound.ndarray.copy())
+                pyboy.stop()
+
                 if self.screen_record and self.video_creator:
-                    self.video_creator.video_frames.append(np.array(pyboy.screen.image))
-                    self.video_creator.audio_frames.append(pyboy.sound.ndarray.copy())
-            pyboy.stop()
+                    self.video_creator.merge_av()
+                    
+                self.status_var.set("GAME CLOSED")
 
-            if self.screen_record and self.video_creator:
-                self.video_creator.merge_av()
-
+            except Exception as e:
+                self.status_var.set(f"LAUNCH FAILURE: {str(e)}")
+                
         except Exception as e:
-            print(f"Error launching {game_name}: {e}")
-            self.status_var.set("LAUNCH FAILURE")
+            self.status_var.set("ERROR LAUNCHING GAME")
 
     def open_readme(self):
         # Create a new top-level window for the README
@@ -312,7 +358,6 @@ class GameBoyLauncher:
 
             with open(readme_path, "r", encoding="utf-8") as readme_file:  # Explicitly specify UTF-8
                 readme_content = readme_file.read()
-                import markdown
                 html_content = markdown.markdown(readme_content)
                 html_label = HTMLLabel(frame, html=html_content)
                 html_label.pack(expand=True, fill=tk.BOTH)
