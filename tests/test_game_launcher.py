@@ -31,7 +31,7 @@ def setup_game_launcher():
     launcher = GameBoyLauncher(root)
 
     # Mock the Entry widgets and other components
-    launcher.listbox = MagicMock(spec=tk.Listbox)
+    launcher.rom_listbox = MagicMock(spec=tk.Listbox)
     launcher.search_var = MagicMock(spec=tk.StringVar)
     launcher.stats_label = MagicMock(spec=tk.Label)
 
@@ -185,8 +185,8 @@ def test_game_filtering(setup_game_launcher, setup_rom_list):
         launcher.filter_games()
         
         # Verify listbox was updated
-        launcher.listbox.delete.assert_called()
-        launcher.listbox.insert.assert_called()
+        launcher.rom_listbox.delete.assert_called()
+        launcher.rom_listbox.insert.assert_called()
 
 
 def test_game_launch(setup_game_launcher, setup_rom_list):
@@ -198,8 +198,8 @@ def test_game_launch(setup_game_launcher, setup_rom_list):
     rom_list = setup_rom_list
     
     # Mock selected game
-    launcher.listbox.curselection.return_value = (0,)
-    launcher.listbox.get.return_value = "Pokemon Red.gb"
+    launcher.rom_listbox.curselection.return_value = (0,)
+    launcher.rom_listbox.get.return_value = "Pokemon Red.gb"
     
     # Mock status variable
     launcher.status_var = MagicMock(spec=tk.StringVar)

@@ -41,6 +41,7 @@ except ImportError:
         def __exit__(self, *args):
             pass
 
+
     exec(
         """
 class cython:
@@ -68,29 +69,31 @@ defaults = {
     "scale": 3,
     "window": "SDL2",
     "log_level": "WARNING",
+    "keybinds": None  # MODIFIED CODE: ANDREW JANEDY
 }
 
 
 class PyBoy:
+
     def __init__(
-        self,
-        gamerom,
-        *,
-        keybinds, # MODIFIED CODE: ANDREW JANEDY
-        window=defaults["window"],
-        scale=defaults["scale"],
-        symbols=None,
-        bootrom=None,
-        sound_volume=100,
-        sound_emulated=True,
-        sound_sample_rate=None,
-        cgb=None,
-        gameshark=None,
-        no_input=False,
-        log_level=defaults["log_level"],
-        color_palette=defaults["color_palette"],
-        cgb_color_palette=defaults["cgb_color_palette"],
-        **kwargs,
+            self,
+            gamerom,
+            *,
+            keybinds=None,  # MODIFIED CODE: ANDREW JANEDY
+            window=defaults["window"],
+            scale=defaults["scale"],
+            symbols=None,
+            bootrom=None,
+            sound_volume=100,
+            sound_emulated=True,
+            sound_sample_rate=None,
+            cgb=None,
+            gameshark=None,
+            no_input=False,
+            log_level=defaults["log_level"],
+            color_palette=defaults["color_palette"],
+            cgb_color_palette=defaults["cgb_color_palette"],
+            **kwargs,
     ):
         """
         PyBoy is loadable as an object in Python. This means, it can be initialized from another script, and be
@@ -117,6 +120,7 @@ class PyBoy:
             gamerom (str): Filepath to a game-ROM for Game Boy or Game Boy Color.
 
         Kwargs:
+            * keybinds (str): A json style string representing a remapping of input
             * window (str): "SDL2", "OpenGL", or "null"
             * scale (int): Window scale factor. Doesn't apply to API.
             * symbols (str): Filepath to a .sym file to use. If unsure, specify `None`.
@@ -141,8 +145,10 @@ class PyBoy:
         """
 
         """ ######################### MODIFIED CODE: ANDREW JANEDY ################################################# """
-        self.keybinds = keybinds
-
+        if keybinds:
+            self.keybinds = keybinds
+            kwargs['keybinds'] = self.keybinds
+        """ ################################## END MODIFIED CODE ################################################### """
 
         self.initialized = False
         self.no_input = no_input
@@ -266,6 +272,7 @@ class PyBoy:
         `pyboy.api.screen.Screen`:
             A Screen object with helper functions for reading the screen buffer.
         """
+
         self.sound = Sound(self.mb)
         """
         Use this method to get a `pyboy.api.sound.Sound` object. This can be used to get the sound buffer of the

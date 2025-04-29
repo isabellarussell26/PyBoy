@@ -14,7 +14,10 @@ from pyboy import PyBoy
 from pyboy.plugins.manager import parser_arguments
 from pyboy.pyboy import defaults
 from pyboy.utils import PyBoyInvalidInputException
-import time
+import numpy as np
+from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
+from moviepy.audio.AudioClip import AudioArrayClip
+
 
 logger = pyboy.logging.get_logger(__name__)
 
@@ -58,6 +61,50 @@ def valid_sample_rate(freq):
         raise ValueError("Invalid sample rate")
 
 
+""" ########################### MODIFIED CODE: ANDREW JANEDY ###################################################### """
+
+
+def get_video_frame(emulator):
+    frame_np = np.array(emulator.screen.image)
+    if frame_np.shape != (144, 160, 4):
+        frame_np = np.resize(frame_np, (144, 160, 4))
+
+    return frame_np
+
+
+def sanitize_game_title(gamerom):
+
+    file_name = os.path.splitext(os.path.basename(gamerom))[0]
+    cleaned_file_name = file_name.replace(" - ", "_").replace(" ", "_")
+
+    return cleaned_file_name
+
+
+def merge_av(audio_frames, video_frames, file_path):
+
+    video_frames = [frame[:, :, :3] for frame in video_frames]
+    video = ImageSequenceClip(video_frames, fps=60)
+
+    sample_rate = 48000
+
+    audio = np.vstack(audio_frames)  # Stack frames into large array
+
+    if audio.dtype != np.float32 and audio.dtype != np.float64:
+        audio = audio.astype(np.float32)
+
+    max_val = np.max(np.abs(audio))
+    if max_val > 1:
+        audio = audio / max_val * 0.5
+
+    audio_clip = AudioArrayClip(audio, fps=sample_rate)
+
+    video = video.with_audio(audio_clip)
+
+    video.write_videofile(file_path, codec="libx264", audio_codec="aac")
+
+
+""" ############################ END MODIFIED CODE ################################################################# """
+
 parser = argparse.ArgumentParser(
     description="PyBoy -- Game Boy emulator written in Python",
     epilog="Warning: Features marked with (internal use) might be subject to change.",
@@ -65,9 +112,19 @@ parser = argparse.ArgumentParser(
 parser.add_argument("ROM", type=valid_file_path, help="Path to a Game Boy compatible ROM file")
 
 """ ########################### MODIFIED CODE: ANDREW JANEDY ###################################################### """
-parser.add_argument("-k", "--keybinds", type=str, help="JSON string of key bind map")
-""" ############################ END MODIFIED CODE ################################################################# """
 
+parser.add_argument("-k", "--keybinds", type=str, help="JSON string of key bind map")
+# parser.add_argument("-sr", "--screen_record", action='store_true', help="Enable screen recording")
+
+parser.add_argument(
+    "-sr", "--screen_record",
+    nargs="?",
+    const=True,      # If user just does -sr, it sets to True
+    default=False,   # If user omits -sr entirely, it's False
+    help="Enable screen recording. Optionally specify a filename."
+)
+
+""" ############################ END MODIFIED CODE ################################################################# """
 
 parser.add_argument("-b", "--bootrom", dest="bootrom", type=valid_file_path, help="Path to a boot-ROM file")
 parser.add_argument("--no-input", action="store_true", help="Disable all user-input (mostly for autonomous testing)")
@@ -208,33 +265,50 @@ The other controls for the emulator:
 See "pyboy --help" for how to enable rewind and other awesome features!
 """
     )
-
     # Start PyBoy and run loop
-    print(vars(argv))
     kwargs = copy.deepcopy(vars(argv))
     kwargs.pop("ROM", None)
     kwargs.pop("loadstate", None)
     kwargs.pop("no_renderer", None)
+    kwargs.pop("screen_record", None)  # MODIFIED CODE: ANDREW JANEDY
+    if hasattr(argv, 'keybinds') and argv.keybinds is not None:
+        kwargs['keybinds'] = argv.keybinds  # MODIFIED CODE: ANDREW JANEDY
     pyboy = PyBoy(argv.ROM, **kwargs)
 
     if argv.loadstate is not None:
         if argv.loadstate == INTERNAL_LOADSTATE:
-            # Guess filepath from ROM path
             state_path = argv.ROM + ".state"
         else:
-            # Use filepath given
             state_path = argv.loadstate
 
         valid_file_path(state_path)
         with open(state_path, "rb") as f:
             pyboy.load_state(f)
 
+    """ ########################### MODIFIED CODE: ANDREW JANEDY ################################################### """
+
+    video_frames = []
+    audio_frames = []
+    mp4_file_path = None
+    scrn_rec_fold = os.path.join(os.path.dirname(__file__), '..', 'pyboy_gui', 'screen_recordings')
+
+    if argv.screen_record:
+        cleaned_game_title = sanitize_game_title(pyboy.gamerom)
+        timestamp = time.strftime("%m.%d.%Y_%H.%M.%S")
+        file_name = f"{cleaned_game_title}_{timestamp}"
+        mp4_file_path = os.path.join(scrn_rec_fold, file_name + ".mp4")
+
     while pyboy.tick():
-        pass
+        if argv.screen_record:
+            video_frames.append(np.array(pyboy.screen.image))
+            audio_frames.append(pyboy.sound.ndarray.copy())
 
     pyboy.stop()
+
+    if argv.screen_record:
+        merge_av(audio_frames, video_frames, mp4_file_path)
+    """ #################################### END MODIFIED CODE ##################################################### """
 
 
 if __name__ == "__main__":
     main()
-
