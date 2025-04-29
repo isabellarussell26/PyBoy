@@ -1,16 +1,16 @@
 import sys
 import time
 
-from pyboy_gui.settings_ui import SettingsWindow
+from settings_ui import SettingsWindow
 import tkinter as tk
 from tkinter import ttk
 from tkinter import font
 import os
 import json
-from pyboy_gui.config import KEYBINDS, COLORS
+from config import KEYBINDS, COLORS
 from tkhtmlview import HTMLLabel
 from pyboy.pyboy import PyBoy
-from pyboy_gui.screen_recording import VideoCreator
+from screen_recording import VideoCreator
 import numpy as np
 
 

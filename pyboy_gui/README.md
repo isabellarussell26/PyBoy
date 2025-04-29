@@ -29,8 +29,16 @@ Before running the PyBoy_GUI program, ensure you have the following:
 1. Install Python from the official [Python website](https://www.python.org/downloads/).
 2. Ensure pip is installed. If pip is not installed, follow the [installation guide](https://pip.pypa.io/en/stable/installation/).
 3. Clone or download this repository.
-4. Install the necessary dependencies using pip by running the following command in your terminal/command prompt: pip install -r requirements.txt
-5. After installing the dependencies, you can launch the PyBoy_GUI program by running: python -m pyboy_gui.main
+4. Navigate to the root directory in command line
+5. Install the necessary dependencies using pip by running the following command in your terminal/command prompt: pip install -r requirements.txt
+6. Run Cython build by running: python setup.py build_ext --inplace
+7. After installing the dependencies and compiling, you can launch the PyBoy_GUI program by running: python pyboy_gui/main.py
+
+### Steps to Compile:
+
+1. Install PyInstaller by running: pip install pyinstaller
+2. From the root directory, run: pyinstaller main.spec
+3. PyBoy.exe will be located in PyBoy/dist
 
 ## License:
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

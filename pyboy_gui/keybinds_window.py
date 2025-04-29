@@ -1,6 +1,6 @@
 import tkinter as tk
 from functools import partial
-from pyboy_gui.config import KEYBINDS, TKINTER_TO_SDL2, COLORS
+from config import KEYBINDS, TKINTER_TO_SDL2, COLORS
 
 
 class KeybindsConfig:

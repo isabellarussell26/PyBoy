@@ -1,9 +1,9 @@
 import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog
-from pyboy_gui.config import COLORS
+from config import COLORS
 
-from pyboy_gui.keybinds_window import KeybindsConfig
+from keybinds_window import KeybindsConfig
 
 
 class SettingsWindow:

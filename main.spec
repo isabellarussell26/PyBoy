@@ -2,6 +2,9 @@
 import sys
 import os
 
+sys.setrecursionlimit(sys.getrecursionlimit() * 5)
+
+
 block_cipher = None
 
 
@@ -17,7 +20,7 @@ a = Analysis(
         ('pyboy_gui\\screen_recording.py', '.'),
         ('pyboy', 'pyboy'),
     ],
-    hiddenimports=['pyboy', 'pyboy.plugins'],
+    hiddenimports=['pyboy', 'pyboy.plugins', 'tkinter.filedialog', 'pyboy_gui.screen_recording',],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
