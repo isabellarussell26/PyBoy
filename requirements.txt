@@ -49,3 +49,4 @@ requests~=2.32.3
 imageio~=2.37.0
 soundfile~=0.13.1
 future~=1.0.0
+tkmacosx

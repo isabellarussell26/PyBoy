@@ -118,23 +118,24 @@ class GameBoyLauncher:
 
         # Now create and pack the buttons
         if sys.platform.startswith('darwin'):
-            launch_button = ttk.Button(control_frame, text=f"LAUNCH\nGAME", command=self.launch_game,
+            launch_button = ttk.Button(control_frame, text=f"LAUNCH\n GAME", command=self.launch_game,
                                        style='MacButton.TButton')
-            readme_button = ttk.Button(control_frame, text=f"README", command=self.open_readme,
+            readme_button = ttk.Button(control_frame, text=f"READ\n ME", command=self.open_readme,
                                        style='MacButton.TButton')
-            settings_button = ttk.Button(settings_frame, text="Settings", command=self.open_settings_window,
-                                         style='MacGreyButton.TButton', width=10, height=1)
-            power_button = ttk.Button(power_button_frame, text="Exit", command=self.close_window,
-                                      style='MacGreyButton.TButton', width=10, height=1)
+            settings_button = ttk.Button(settings_frame, text=" Settings".ljust(10), command=self.open_settings_window,
+                                         style='MacGreyButton.TButton', width=10)
+            power_button = ttk.Button(power_button_frame, text="   Exit".ljust(10), command=self.close_window,
+                                      style='MacGreyButton.TButton', width=10)
 
             launch_button.pack(side=tk.RIGHT, padx=10)
             readme_button.pack(side=tk.RIGHT, padx=10)
-            settings_button.pack()
-            power_button.pack()
+            settings_button.pack(fill=tk.X, expand=True)
+            power_button.pack(fill=tk.X, expand=True)
+
 
         else:
             launch_button = tk.Button(control_frame,
-                                      text=f"LAUNCH\nGAME",
+                                      text=f"LAUNCH\n GAME",
                                       command=self.launch_game,
                                       font=('Courier', 14, 'bold'),
                                       bg=COLORS["button_magenta"],
@@ -147,7 +148,7 @@ class GameBoyLauncher:
                                       bd=5,
                                       highlightthickness=0)
             readme_button = tk.Button(control_frame,
-                                      text=f"README",
+                                      text=f"READ\n ME",
                                       command=self.open_readme,
                                       font=('Courier', 14, 'bold'),
                                       bg=COLORS["button_magenta"],
@@ -182,14 +183,14 @@ class GameBoyLauncher:
             power_button.pack()
 
         settings_label = tk.Label(settings_frame,
-                                  text="Settings",
+                                  text=" Settings".ljust(10),
                                   font=('Courier', 8, 'bold'),
                                   bg=COLORS["gameboy_grey"],
                                   fg=COLORS["text_blue"])
         settings_label.pack(pady=(5, 0))
 
         power_label = tk.Label(power_button_frame,
-                               text="Exit",
+                               text="   Exit".ljust(10),
                                font=('Courier', 8, 'bold'),
                                bg=COLORS["gameboy_grey"],
                                fg=COLORS["text_blue"])
