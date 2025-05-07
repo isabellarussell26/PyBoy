@@ -14,8 +14,8 @@ class KeybindsConfig:
         parent_y = self.parent.root.winfo_y()
 
         # Adjust the window position based on the parent window's position
-        offset_x = 60  # Offset from the parent window's left edge
-        offset_y = 60  # Offset from the parent window's top edge
+        offset_x = 60
+        offset_y = 60
 
         self.top.geometry(f"350x550+{parent_x+offset_x}+{parent_y+offset_y}")  # Slightly wider for two buttons
         self.top.configure(bg=COLORS["gameboy_grey"])
@@ -54,9 +54,8 @@ class KeybindsConfig:
             self.buttons[action] = btn
             row += 1
 
-        # Frame to hold Save and Reset buttons, aligned to the right
         button_frame = tk.Frame(self.top, bg=COLORS["gameboy_grey"])
-        button_frame.grid(row=row, column=1, pady=10)  # Place in column 1, sticky east
+        button_frame.grid(row=row, column=1, pady=10)
 
         # Save Button
         save_button = tk.Button(button_frame,
@@ -152,19 +151,14 @@ class KeybindsConfig:
         # Check if this binding is already used
         for other_action, bound_key in self.keybinds.items():
             if other_action != action and bound_key == new_binding:
-                # Unbind the key from the other action
                 self.keybinds[other_action] = "UNBOUND"
-
-                # Update the button label for the old binding
                 other_btn = self.buttons.get(other_action)
                 if other_btn:
                     other_btn.config(text="UNBOUND")
 
-        # Update the keybinding and the button text
         self.keybinds[action] = new_binding
         btn.config(text=new_binding)
 
-        # Reset button state and color
         btn.config(bg=COLORS["button_grey"], state="normal")  # Reset color and re-enable the button
         self.top.unbind("<KeyPress>")
         self.top.unbind("<Button>")
@@ -174,3 +168,4 @@ class KeybindsConfig:
             action: TKINTER_TO_SDL2.get(key, f"UNKNOWN_{key}")
             for action, key, in self.keybinds.items()
         }
+        

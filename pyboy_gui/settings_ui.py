@@ -7,13 +7,13 @@ from keybinds_window import KeybindsConfig
 
 
 class SettingsWindow:
-    def __init__(self, launcher, opt_to_func=None):
+    def __init__(self, launcher):
         self.launcher = launcher
         self.top = tk.Toplevel(launcher.root)
         self.top.title("Settings")
         self.top.configure(bg=COLORS["gameboy_grey"])
         self._screen_record_active = self.launcher.screen_record
-        self.screen_record_button = None  # Initialize button variable
+        self.screen_record_button = None
 
         title = tk.Label(self.top,
                          text="Settings",
@@ -33,14 +33,13 @@ class SettingsWindow:
         parent_y = self.launcher.root.winfo_y()
 
         # Adjust the window position based on the parent window's position
-        offset_x = 30  # Offset from the parent window's left edge
-        offset_y = 30  # Offset from the parent window's top edge
+        offset_x = 30
+        offset_y = 30
 
         # Set the size and position of the SettingsWindow relative to the parent window
         window_height = 100 + len(options) * 50
         self.top.geometry(f"400x{window_height}+{parent_x + offset_x}+{parent_y + offset_y}")
 
-        # Create buttons and pack them
         for opt in options:
             opt_to_func = opt.lower().replace(" ", "_")
             opt_btn = tk.Button(self.top,
@@ -55,7 +54,7 @@ class SettingsWindow:
 
             if opt_to_func == "toggle_screen_recording":
                 self.screen_record_button = opt_btn
-                self._update_screen_record_button_color()  # Set initial color
+                self._update_screen_record_button_color()
 
     def _update_screen_record_button_color(self):
         if self._screen_record_active:
@@ -65,27 +64,27 @@ class SettingsWindow:
 
     def toggle_screen_recording(self):
         self._screen_record_active = not self._screen_record_active
-        self.launcher.screen_record = self._screen_record_active  # Update launcher's screen_record
+        self.launcher.screen_record = self._screen_record_active
 
         if self._screen_record_active:
             directory_path = filedialog.askdirectory(
                 title="Choose Save Directory for Recording"
             )
             if directory_path:
-                self.launcher.recording_directory = directory_path  # Save to launcher's attribute
+                self.launcher.recording_directory = directory_path
                 self.launcher.update_recording_led()
                 print(f"Screen recording directory set to: {self.launcher.recording_directory}")
             else:
                 # User cancelled, revert the state
                 self._screen_record_active = False
                 self.launcher.screen_record = False
-                self.launcher.recording_directory = None  # Clear the directory
+                self.launcher.recording_directory = None
         else:
-            self.launcher.recording_directory = None  # Clear the directory when disabled
+            self.launcher.recording_directory = None
             self.launcher.update_recording_led()
             print("Screen recording disabled.")
 
-        self._update_screen_record_button_color()  # Update button color
+        self._update_screen_record_button_color()
 
     def change_keybindings(self):
         if "keybinds" not in self.launcher.open_windows or not self.launcher.open_windows[
