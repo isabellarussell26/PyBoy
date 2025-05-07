@@ -110,7 +110,7 @@ class GameBoyLauncher:
         center_buttons_frame.pack(expand=False, padx=(80, 0), pady=(0, 0))  # Added pady to move down
 
         settings_frame = tk.Frame(center_buttons_frame, bg=COLORS["gameboy_grey"])
-        settings_frame.pack(side=tk.LEFT, padx=(20, 15), pady=(0, 0)) 
+        settings_frame.pack(side=tk.LEFT, padx=(20, 15), pady=(0, 0))
 
         power_button_frame = tk.Frame(center_buttons_frame, bg=COLORS["gameboy_grey"])
         power_button_frame.pack(side=tk.LEFT, padx=(20, 80), pady=(0, 0))  # Increased padx
