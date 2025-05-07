@@ -14,6 +14,7 @@ from screen_recording import VideoCreator
 import numpy as np
 
 
+
 class GameBoyLauncher:
     def __init__(self, root):
         self.root = root
@@ -27,10 +28,12 @@ class GameBoyLauncher:
         self.open_windows = {}
         self.video_creator = None
         self.recording_directory = None
+        self.keybinds_changed = False  # New variable to track keybind changes
 
         self.style = ttk.Style()
         self.style.theme_use('clam')
 
+        # GUI CONFIGURE FOR MAC OS
         if sys.platform.startswith('darwin'):
             self.style.configure('MacButton.TButton',
                                  background=COLORS["button_magenta"],
@@ -47,6 +50,7 @@ class GameBoyLauncher:
                                  borderwidth=2,
                                  highlightthickness=0)
 
+        # CROSS PLATFORM GUI CONFIGURATION
         self.style.configure('Hacker.TFrame', background=COLORS["gameboy_grey"], padding=10)
         self.style.configure('Hacker.TLabel',
                              background=COLORS["gameboy_grey"],
@@ -115,9 +119,9 @@ class GameBoyLauncher:
         power_button_frame = tk.Frame(center_buttons_frame, bg=COLORS["gameboy_grey"])
         power_button_frame.pack(side=tk.LEFT, padx=(20, 80), pady=(0, 0))  # Increased padx
 
-
-        # Now create and pack the buttons
+        # BUTTON CONFIGURE FOR MAC OS
         if sys.platform.startswith('darwin'):
+
             launch_button = ttk.Button(control_frame, text=f"LAUNCH\n GAME", command=self.launch_game,
                                        style='MacButton.TButton')
             readme_button = ttk.Button(control_frame, text=f"READ\n ME", command=self.open_readme,
@@ -132,10 +136,10 @@ class GameBoyLauncher:
             settings_button.pack(fill=tk.X, expand=True)
             power_button.pack(fill=tk.X, expand=True)
 
-
+        # CROSS PLATFORM BUTTON CONFIGURATION
         else:
             launch_button = tk.Button(control_frame,
-                                      text=f"LAUNCH\n GAME",
+                                      text=f"LAUNCH\nGAME",
                                       command=self.launch_game,
                                       font=('Courier', 14, 'bold'),
                                       bg=COLORS["button_magenta"],
@@ -148,7 +152,7 @@ class GameBoyLauncher:
                                       bd=5,
                                       highlightthickness=0)
             readme_button = tk.Button(control_frame,
-                                      text=f"READ\n ME",
+                                      text=f"READ\nME",
                                       command=self.open_readme,
                                       font=('Courier', 14, 'bold'),
                                       bg=COLORS["button_magenta"],
@@ -182,6 +186,7 @@ class GameBoyLauncher:
             settings_button.pack()
             power_button.pack()
 
+        # CENTER BUTTONS (SETTINGS & "POWER")
         settings_label = tk.Label(settings_frame,
                                   text=" Settings".ljust(10),
                                   font=('Courier', 8, 'bold'),
@@ -196,12 +201,44 @@ class GameBoyLauncher:
                                fg=COLORS["text_blue"])
         power_label.pack(pady=(5, 0))
 
+        # KEYBINDS STATUS LED AND LABEL
+        self.keybinds_status_led_canvas = tk.Canvas(self.main_frame, width=17, height=17, bg=COLORS["gameboy_grey"],
+                                                    highlightthickness=0)
+        self.keybinds_status_led = self.keybinds_status_led_canvas.create_oval(2, 2, 15, 15, fill="red",
+                                                                               outline="white", width=1)  # Initial red
+        self.keybinds_status_label = ttk.Label(self.main_frame, text="KEYBINDS CHANGED", style='Hacker.TLabel')
+
+        # SCREEN RECORDING STATUS LED AND LABEL
+        self.recording_status_text = tk.StringVar()
+        self.recording_status_text.set("REC:")
+        self.recording_label = ttk.Label(self.main_frame,
+                                         textvariable=self.recording_status_text,
+                                         style='Hacker.TLabel')
+        self.recording_led_canvas = tk.Canvas(self.main_frame, width=17, height=17, bg=COLORS["gameboy_grey"],
+                                              highlightthickness=0)
+        self.recording_led = self.recording_led_canvas.create_oval(2, 2, 15, 15, fill="red", outline="white",
+                                                                   width=1)  # Initial red
+
+        # SYSTEM STATUS WITH LED
         self.status_var = tk.StringVar()
         self.status_var.set("SYSTEM READY")
+
+        self.status_led_canvas = tk.Canvas(self.main_frame, width=17, height=17, bg=COLORS["gameboy_grey"],
+                                           highlightthickness=0)
+        self.status_led = self.status_led_canvas.create_oval(2, 2, 15, 15, fill="green", outline="white",
+                                                             width=1)  # Initial color green
+
         status_label = ttk.Label(self.main_frame,
                                  textvariable=self.status_var,
                                  style='Hacker.TLabel')
-        status_label.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(10, 0))
+
+        # UPDATED GRID PLACEMENT
+        self.keybinds_status_led_canvas.grid(row=5, column=0, sticky=tk.W, padx=(10, 0), pady=(0, 0))  # Moved to row 5
+        self.keybinds_status_label.grid(row=5, column=0, sticky=tk.W, padx=(35, 0), pady=(0, 0))  # Moved to row 5
+        self.recording_led_canvas.grid(row=6, column=0, sticky=tk.W, padx=(10, 0), pady=(5, 0))  # Moved to row 6
+        self.recording_label.grid(row=6, column=0, sticky=tk.W, padx=(35, 0), pady=(5, 0))  # Moved to row 6
+        self.status_led_canvas.grid(row=7, column=0, sticky=tk.W, padx=(10, 0), pady=(0, 0))  # Moved to row 7
+        status_label.grid(row=7, column=0, sticky=(tk.W, tk.E), padx=(35, 0), pady=(5, 0))  # Moved to row 7
 
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
@@ -212,6 +249,29 @@ class GameBoyLauncher:
 
         self.games = []
         self.load_roms()
+        self.update_led_status()
+        self.update_recording_led()
+        self.update_keybinds_led() # Initialize keybinds LED
+
+    def update_recording_led(self):
+        if self.screen_record and self.recording_directory:
+            self.recording_led_canvas.itemconfig(self.recording_led, fill="green")
+            self.recording_status_text.set(f"REC: {self.recording_directory}")
+        else:
+            self.recording_led_canvas.itemconfig(self.recording_led, fill="red")
+            self.recording_status_text.set("REC:")
+
+    def update_keybinds_led(self):
+        if self.remapped_keys:
+            self.keybinds_status_led_canvas.itemconfig(self.keybinds_status_led, fill="green")
+        else:
+            self.keybinds_status_led_canvas.itemconfig(self.keybinds_status_led, fill="red")
+
+    def update_led_status(self):
+        if self.status_var.get() == "SYSTEM READY":
+            self.status_led_canvas.itemconfig(self.status_led, fill="green")
+        else:
+            self.status_led_canvas.itemconfig(self.status_led, fill="red")
 
     def close_window(self):
         self.root.destroy()
@@ -227,6 +287,8 @@ class GameBoyLauncher:
                 settings_window.top.destroy()
                 if "settings" in self.open_windows:
                     del self.open_windows["settings"]
+                self.update_recording_led() # Update REC status when settings close
+                self.update_keybinds_led() # Update keybinds LED when settings close
 
             settings_window.top.protocol("WM_DELETE_WINDOW", on_close)
         else:
@@ -239,15 +301,20 @@ class GameBoyLauncher:
         if roms_dir is None:
             self.rom_listbox.insert(tk.END, "Please select a ROM directory in Settings.")  # changed
             self.stats_label.configure(text="NO ROM DIRECTORY SELECTED")
+            self.status_var.set("NO ROM DIRECTORY") # Update status
+            self.update_led_status()
         elif roms_dir.exists():
             for file in roms_dir.glob("*.gb"):
                 self.games.append(file.name.strip())
             self.games.sort()
             self.update_listbox()
             self.update_stats()
+            self.status_var.set("SYSTEM READY") # Update status
+            self.update_led_status()
         else:
             self.status_var.set("ROM DIRECTORY NOT FOUND")
             self.rom_listbox.insert(tk.END, "ROMs directory not found.")
+            self.update_led_status()
 
     def update_stats(self):
         self.stats_label.configure(text=f"AVAILABLE ROMS: {len(self.games)}")
@@ -284,9 +351,11 @@ class GameBoyLauncher:
 
         if not os.path.exists(rom_path):
             self.status_var.set("ROM NOT FOUND")
+            self.update_led_status()
             return
 
         self.status_var.set(f"LAUNCHING {game_name.upper()}...")
+        self.update_led_status()
         self.root.update()
 
         try:
@@ -304,6 +373,7 @@ class GameBoyLauncher:
                 self.status_var.set("SCREEN RECORDING DIRECTORY NOT SET")
                 self.screen_record = False  # Disable recording if no directory
                 # Optionally inform the user here
+                self.update_led_status()
             else:
                 self.video_creator = None
 
@@ -312,6 +382,8 @@ class GameBoyLauncher:
                     self.video_creator.video_frames.append(np.array(pyboy.screen.image))
                     self.video_creator.audio_frames.append(pyboy.sound.ndarray.copy())
             pyboy.stop()
+            self.status_var.set("SYSTEM READY") # Reset status after game closes
+            self.update_led_status()
 
             if self.screen_record and self.video_creator:
                 self.video_creator.merge_av()

@@ -73,6 +73,7 @@ class SettingsWindow:
             )
             if directory_path:
                 self.launcher.recording_directory = directory_path  # Save to launcher's attribute
+                self.launcher.update_recording_led()
                 print(f"Screen recording directory set to: {self.launcher.recording_directory}")
             else:
                 # User cancelled, revert the state
@@ -81,6 +82,7 @@ class SettingsWindow:
                 self.launcher.recording_directory = None  # Clear the directory
         else:
             self.launcher.recording_directory = None  # Clear the directory when disabled
+            self.launcher.update_recording_led()
             print("Screen recording disabled.")
 
         self._update_screen_record_button_color()  # Update button color
