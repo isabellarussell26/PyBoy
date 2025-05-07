@@ -232,12 +232,12 @@ class GameBoyLauncher:
                                  style='Hacker.TLabel')
 
         # UPDATED GRID PLACEMENT
-        self.keybinds_status_led_canvas.grid(row=5, column=0, sticky=tk.W, padx=(10, 0), pady=(0, 0))  # Moved to row 5
-        self.keybinds_status_label.grid(row=5, column=0, sticky=tk.W, padx=(35, 0), pady=(0, 0))  # Moved to row 5
-        self.recording_led_canvas.grid(row=6, column=0, sticky=tk.W, padx=(10, 0), pady=(5, 0))  # Moved to row 6
-        self.recording_label.grid(row=6, column=0, sticky=tk.W, padx=(35, 0), pady=(5, 0))  # Moved to row 6
-        self.status_led_canvas.grid(row=7, column=0, sticky=tk.W, padx=(10, 0), pady=(0, 0))  # Moved to row 7
-        status_label.grid(row=7, column=0, sticky=(tk.W, tk.E), padx=(35, 0), pady=(5, 0))  # Moved to row 7
+        self.keybinds_status_led_canvas.grid(row=5, column=0, sticky=tk.W, padx=(10, 0), pady=(0, 0))
+        self.keybinds_status_label.grid(row=5, column=0, sticky=tk.W, padx=(35, 0), pady=(0, 0))
+        self.recording_led_canvas.grid(row=6, column=0, sticky=tk.W, padx=(10, 0), pady=(5, 0))
+        self.recording_label.grid(row=6, column=0, sticky=tk.W, padx=(35, 0), pady=(5, 0))
+        self.status_led_canvas.grid(row=7, column=0, sticky=tk.W, padx=(10, 0), pady=(0, 0))
+        status_label.grid(row=7, column=0, sticky=(tk.W, tk.E), padx=(35, 0), pady=(5, 0))
 
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
@@ -250,7 +250,7 @@ class GameBoyLauncher:
         self.load_roms()
         self.update_led_status()
         self.update_recording_led()
-        self.update_keybinds_led() # Initialize keybinds LED
+        self.update_keybinds_led()
 
     def update_recording_led(self):
         if self.screen_record and self.recording_directory:
@@ -287,11 +287,9 @@ class GameBoyLauncher:
                 if "settings" in self.open_windows:
                     del self.open_windows["settings"]
                 self.update_recording_led() # Update REC status when settings close
-                self.update_keybinds_led() # Update keybinds LED when settings close
 
             settings_window.top.protocol("WM_DELETE_WINDOW", on_close)
         else:
-            # Focus the existing window
             self.open_windows["settings"].top.lift()
 
     def load_roms(self):
@@ -300,7 +298,7 @@ class GameBoyLauncher:
         if roms_dir is None:
             self.rom_listbox.insert(tk.END, "Please select a ROM directory in Settings.")  # changed
             self.stats_label.configure(text="NO ROM DIRECTORY SELECTED")
-            self.status_var.set("NO ROM DIRECTORY") # Update status
+            self.status_var.set("NO ROM DIRECTORY")
             self.update_led_status()
         elif roms_dir.exists():
             for file in roms_dir.glob("*.gb"):
@@ -308,7 +306,7 @@ class GameBoyLauncher:
             self.games.sort()
             self.update_listbox()
             self.update_stats()
-            self.status_var.set("SYSTEM READY") # Update status
+            self.status_var.set("SYSTEM READY")
             self.update_led_status()
         else:
             self.status_var.set("ROM DIRECTORY NOT FOUND")
@@ -371,8 +369,7 @@ class GameBoyLauncher:
                 self.video_creator = VideoCreator(pyboy, output_path=output_path)
             elif self.screen_record and not self.recording_directory:
                 self.status_var.set("SCREEN RECORDING DIRECTORY NOT SET")
-                self.screen_record = False  # Disable recording if no directory
-                # Optionally inform the user here
+                self.screen_record = False
                 self.update_led_status()
             else:
                 self.video_creator = None
@@ -382,7 +379,8 @@ class GameBoyLauncher:
                     self.video_creator.video_frames.append(np.array(pyboy.screen.image))
                     self.video_creator.audio_frames.append(pyboy.sound.ndarray.copy())
             pyboy.stop()
-            self.status_var.set("SYSTEM READY") # Reset status after game closes
+
+            self.status_var.set("SYSTEM READY")  # Reset status after game closes
             self.update_led_status()
 
             if self.screen_record and self.video_creator:
@@ -393,22 +391,18 @@ class GameBoyLauncher:
             self.status_var.set("LAUNCH FAILURE")
 
     def open_readme(self):
-        # Create a new top-level window for the README
+
         readme_window = tk.Toplevel(self.root)
         readme_window.title("README")
         readme_window.geometry("1350x900")
 
-        # Create a frame for holding the HTMLLabel
         frame = ttk.Frame(readme_window)
         frame.pack(expand=True, fill=tk.BOTH)
 
-        # Read the README file and convert it to HTML using markdown library
         try:
             if hasattr(sys, '_MEIPASS'):
-                # Running as bundled executable
                 readme_path = os.path.join(sys._MEIPASS, "README.md")
             else:
-                # Running as script
                 readme_path = "README.md"
 
             with open(readme_path, "r", encoding="utf-8") as readme_file:  # Explicitly specify UTF-8

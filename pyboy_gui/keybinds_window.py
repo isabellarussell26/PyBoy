@@ -102,8 +102,7 @@ class KeybindsConfig:
         if self.keybinds != KEYBINDS:
             self.convert_keybinds()
             self.parent.update_remapped_keys(self.keybinds)
-            # self.top.remapped_keys = self.keybinds.copy()
-            # print(self.top.remapped_keys)
+            self.parent.update_keybinds_led()
         self.top.destroy()
 
     def reset_keybinds(self):
@@ -112,6 +111,7 @@ class KeybindsConfig:
         for action, key in self.keybinds.items():
             if action in self.buttons:
                 self.buttons[action].config(text=key)
+        self.parent.update_keybinds_led()
 
     def flash_button(self, btn, count=6):
         def toggle(i):
