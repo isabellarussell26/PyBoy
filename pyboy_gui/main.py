@@ -29,12 +29,9 @@ class GameBoyLauncher:
         self.recording_directory = None
 
         self.style = ttk.Style()
-        self.style.configure('Hacker.TFrame', background=COLORS["gameboy_grey"])
-        self.style.configure('Hacker.TButton',
-                             background=COLORS["button_grey"],
-                             foreground=COLORS["gameboy_grey"],
-                             font=('Courier', 12, 'bold'),
-                             padding=10)
+        self.style.theme_use('clam')  # Explicitly set the 'clam' theme
+
+        self.style.configure('Hacker.TFrame', background=COLORS["gameboy_grey"], padding=10)
         self.style.configure('Hacker.TLabel',
                              background=COLORS["gameboy_grey"],
                              foreground=COLORS["text_blue"],
@@ -45,10 +42,10 @@ class GameBoyLauncher:
 
         title_font = font.Font(family='Courier', size=24, weight='bold')
         self.title_label = tk.Label(self.main_frame,
-                         text="GAME BOY LAUNCHER v1.0",
-                         font=title_font,
-                         fg=COLORS["text_blue"],
-                         bg=COLORS["gameboy_grey"])
+                                    text="GAME BOY LAUNCHER v1.0",
+                                    font=title_font,
+                                    fg=COLORS["text_blue"],
+                                    bg=COLORS["gameboy_grey"])
         self.title_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
 
         search_frame = ttk.Frame(self.main_frame, style='Hacker.TFrame')
@@ -107,8 +104,6 @@ class GameBoyLauncher:
                                   highlightthickness=0)
         launch_button.pack(side=tk.RIGHT, padx=10)
 
-        # Add this just before the 'Launch Game' button in the control_frame
-
         readme_button = tk.Button(control_frame,
                                   text=f"README",
                                   command=self.open_readme,
@@ -122,7 +117,7 @@ class GameBoyLauncher:
                                   height=3,
                                   bd=5,
                                   highlightthickness=0)
-        readme_button.pack(side=tk.RIGHT, padx=10)  # Place the button to the left of the 'Launch Game' button
+        readme_button.pack(side=tk.RIGHT, padx=10)
 
         center_buttons_frame = tk.Frame(control_frame, bg=COLORS["gameboy_grey"])
         center_buttons_frame.pack(expand=True, padx=(80, 0))
@@ -182,7 +177,7 @@ class GameBoyLauncher:
         self.rom_listbox.bind('<Double-Button-1>', lambda e: self.launch_game())
 
         self.games = []
-        self.load_roms() # changed
+        self.load_roms() 
 
     def close_window(self):
         self.root.destroy()
@@ -208,7 +203,7 @@ class GameBoyLauncher:
         self.games.clear()
         roms_dir = self.rom_directory
         if roms_dir is None:
-            self.rom_listbox.insert(tk.END, "Please select a ROM directory in Settings.") # changed
+            self.rom_listbox.insert(tk.END, "Please select a ROM directory in Settings.")  # changed
             self.stats_label.configure(text="NO ROM DIRECTORY SELECTED")
         elif roms_dir.exists():
             for file in roms_dir.glob("*.gb"):
@@ -273,7 +268,7 @@ class GameBoyLauncher:
                 self.video_creator = VideoCreator(pyboy, output_path=output_path)
             elif self.screen_record and not self.recording_directory:
                 self.status_var.set("SCREEN RECORDING DIRECTORY NOT SET")
-                self.screen_record = False # Disable recording if no directory
+                self.screen_record = False  # Disable recording if no directory
                 # Optionally inform the user here
             else:
                 self.video_creator = None

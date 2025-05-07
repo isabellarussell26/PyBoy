@@ -94,3 +94,5 @@ class VideoCreator:
         audio_clip = AudioArrayClip(audio, fps=self.sample_rate)
         video = video.with_audio(audio_clip)
         video.write_videofile(self.mp4_file_path, codec=self.codec, audio_codec=self.audio_codec)
+
+
