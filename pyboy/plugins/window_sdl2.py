@@ -131,7 +131,7 @@ def sdl2_event_pump(events):
             )
 
             """ ####################### MODIFIED CODE: ANDREW JANEDY ############################################### """
-        elif event.type == sdl2.SDL_MOUSEBUTTONDOWN:  # <---- INSERT THIS BLOCK HERE
+        elif event.type == sdl2.SDL_MOUSEBUTTONDOWN:
             mouse_button_code = -1
             if event.button.button == sdl2.SDL_BUTTON_LEFT:
                 mouse_button_code = sdl2.SDL_BUTTON_LEFT
@@ -240,11 +240,17 @@ class WindowSDL2(PyBoyWindowPlugin):
         if keybind_string:
             new_keybinds = self._parse_keybind_string(keybind_string)
             for sdl_key_code, event_value in new_keybinds.items():
-                if event_value in [WindowEvent.PRESS_ARROW_UP, WindowEvent.PRESS_ARROW_DOWN, WindowEvent.PRESS_ARROW_LEFT, WindowEvent.PRESS_ARROW_RIGHT, WindowEvent.PRESS_BUTTON_A, WindowEvent.PRESS_BUTTON_B, WindowEvent.PRESS_BUTTON_START, WindowEvent.PRESS_BUTTON_SELECT]:
+                if event_value in [WindowEvent.PRESS_ARROW_UP, WindowEvent.PRESS_ARROW_DOWN,
+                                   WindowEvent.PRESS_ARROW_LEFT, WindowEvent.PRESS_ARROW_RIGHT,
+                                   WindowEvent.PRESS_BUTTON_A, WindowEvent.PRESS_BUTTON_B,
+                                   WindowEvent.PRESS_BUTTON_START, WindowEvent.PRESS_BUTTON_SELECT]:
                     KEY_DOWN[sdl_key_code] = WindowEvent(event_value)
                     # Automatically generate the corresponding RELEASE event value
-                    release_event_value = event_value + 8 # Assuming RELEASE events are consistently 8 values after PRESS events
-                    if release_event_value in [WindowEvent.RELEASE_ARROW_UP, WindowEvent.RELEASE_ARROW_DOWN, WindowEvent.RELEASE_ARROW_LEFT, WindowEvent.RELEASE_ARROW_RIGHT, WindowEvent.RELEASE_BUTTON_A, WindowEvent.RELEASE_BUTTON_B, WindowEvent.RELEASE_BUTTON_START, WindowEvent.RELEASE_BUTTON_SELECT]:
+                    release_event_value = event_value + 8
+                    if release_event_value in [WindowEvent.RELEASE_ARROW_UP, WindowEvent.RELEASE_ARROW_DOWN,
+                                               WindowEvent.RELEASE_ARROW_LEFT, WindowEvent.RELEASE_ARROW_RIGHT,
+                                               WindowEvent.RELEASE_BUTTON_A, WindowEvent.RELEASE_BUTTON_B,
+                                               WindowEvent.RELEASE_BUTTON_START, WindowEvent.RELEASE_BUTTON_SELECT]:
                         KEY_UP[sdl_key_code] = WindowEvent(release_event_value)
                     else:
                         logger.warning(f"Could not find corresponding RELEASE event for {WindowEvent(event_value)}")

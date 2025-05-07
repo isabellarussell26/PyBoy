@@ -14,7 +14,6 @@ from screen_recording import VideoCreator
 import numpy as np
 
 
-
 class GameBoyLauncher:
     def __init__(self, root):
         self.root = root
@@ -341,6 +340,7 @@ class GameBoyLauncher:
             self.remapped_keys = new_keys
 
     def launch_game(self):
+        print(self.remapped_keys)
         """Launch the selected game with PyBoy and record screen if enabled."""
         selection = self.rom_listbox.curselection()
         if len(selection) == 0:
@@ -432,4 +432,3 @@ if __name__ == "__main__":
     app = GameBoyLauncher(root)
     root.mainloop()
 
-# some code snippets added by ai
