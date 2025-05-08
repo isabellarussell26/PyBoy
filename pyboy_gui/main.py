@@ -109,7 +109,7 @@ class GameBoyLauncher:
         control_frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=20)
 
         center_buttons_frame = tk.Frame(control_frame, bg=COLORS["gameboy_grey"])
-        center_buttons_frame.place(relx=0.5, rely=0.2, anchor=tk.CENTER, x=0, y=50)
+        center_buttons_frame.place(relx=0.5, rely=0.2, anchor=tk.CENTER, x=0, y=25)
 
         settings_frame = tk.Frame(center_buttons_frame, bg=COLORS["gameboy_grey"])
         settings_frame.pack(side=tk.LEFT, padx=(20, 15), pady=(0, 0))
