@@ -29,6 +29,7 @@ from pyboy.utils import (
     WindowEvent,
     cython_compiled,
 )
+from .bot_support import BotSupport
 
 try:
     import cython
@@ -217,6 +218,8 @@ class PyBoy:
             cgb,
             randomize=randomize,
         )
+
+        self.botsupport = BotSupport(self.mb) # added by Justice Russell
 
         # Validate all kwargs
         plugin_manager_keywords = []
@@ -468,6 +471,13 @@ class PyBoy:
                 self.gameshark.add(code.strip())
 
         self.initialized = True
+
+
+    # added by Justice Russell
+    def botsupport_manager(self):
+        return self.botsupport
+
+
 
     def _tick(self, render, sound):
         if self.stopped:

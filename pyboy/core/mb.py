@@ -89,6 +89,11 @@ class Motherboard:
         self.breakpoint_singlestep_latch = False
         self.breakpoint_waiting = -1
 
+        from pyboy.bot_support import BotSupport # added by Justice Russell
+        self.botsupport = BotSupport(self) # added by Justice Russell
+
+
+
     def switch_speed(self):
         bit0 = self.key1 & 0b1
         if bit0 == 1:
