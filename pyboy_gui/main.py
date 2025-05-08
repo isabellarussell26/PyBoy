@@ -105,18 +105,17 @@ class GameBoyLauncher:
 
         self.rom_listbox.grid(row=3, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(0, 10))
 
-        # Define control_frame and its child frames HERE
         control_frame = ttk.Frame(self.main_frame, style='Hacker.TFrame')
         control_frame.grid(row=4, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=20)
 
         center_buttons_frame = tk.Frame(control_frame, bg=COLORS["gameboy_grey"])
-        center_buttons_frame.pack(expand=False, padx=(80, 0), pady=(0, 0))  # Added pady to move down
+        center_buttons_frame.place(relx=0.5, rely=0.2, anchor=tk.CENTER, x=0, y=50)
 
         settings_frame = tk.Frame(center_buttons_frame, bg=COLORS["gameboy_grey"])
         settings_frame.pack(side=tk.LEFT, padx=(20, 15), pady=(0, 0))
 
         power_button_frame = tk.Frame(center_buttons_frame, bg=COLORS["gameboy_grey"])
-        power_button_frame.pack(side=tk.LEFT, padx=(20, 80), pady=(0, 0))  # Increased padx
+        power_button_frame.pack(side=tk.LEFT, padx=(20, 80), pady=(0, 0))
 
         # BUTTON CONFIGURE FOR MAC OS
         if sys.platform.startswith('darwin'):
