@@ -46,5 +46,5 @@ COLORS = {
     "white": "#FFFFFF"
 }
 
-BASE_DIR = Path(__file__).resolve().parent  # Adjust if config.py is in pyboy_gui
+BASE_DIR = Path(__file__).resolve().parent  
 ROM_PATH = str(BASE_DIR / "roms")

@@ -17,7 +17,7 @@ class KeybindsConfig:
         offset_x = 60
         offset_y = 60
 
-        self.top.geometry(f"350x550+{parent_x+offset_x}+{parent_y+offset_y}")  # Slightly wider for two buttons
+        self.top.geometry(f"350x550+{parent_x+offset_x}+{parent_y+offset_y}")
         self.top.configure(bg=COLORS["gameboy_grey"])
 
         self.keybinds = keybinds
@@ -57,7 +57,7 @@ class KeybindsConfig:
         button_frame = tk.Frame(self.top, bg=COLORS["gameboy_grey"])
         button_frame.grid(row=row, column=1, pady=10)
 
-        # Save Button
+        # SAVE KEYBINDS
         save_button = tk.Button(button_frame,
                                 text="SAVE",
                                 font=("Courier", 14, "bold"),
@@ -71,7 +71,7 @@ class KeybindsConfig:
                                 command=self.save_keybinds)
         save_button.pack(side=tk.LEFT, padx=(0, 5))
 
-        # Reset Button
+        # RESET KEYBINDS
         reset_button = tk.Button(button_frame,
                                  text="RESET",
                                  font=("Courier", 14, "bold"),
@@ -122,10 +122,9 @@ class KeybindsConfig:
             if i < count - 1:
                 self.top.after(200, toggle, i + 1)  # Schedule next toggle after 200ms
 
-        toggle(0)  # Start with 0
+        toggle(0)
 
     def rebind_key(self, action, btn):
-        # Highlight the button by changing its background color
         btn.config(bg=COLORS["button_magenta"])  # Highlight the button
         btn.config(state="disabled")  # Disable the button to prevent further clicks
 

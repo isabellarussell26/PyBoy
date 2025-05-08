@@ -27,7 +27,7 @@ class GameBoyLauncher:
         self.open_windows = {}
         self.video_creator = None
         self.recording_directory = None
-        self.keybinds_changed = False  # New variable to track keybind changes
+        self.keybinds_changed = False
 
         self.style = ttk.Style()
         self.style.theme_use('clam')
@@ -278,14 +278,14 @@ class GameBoyLauncher:
         # Check if the settings window is already open
         if "settings" not in self.open_windows or not self.open_windows["settings"].top.winfo_exists():
             settings_window = SettingsWindow(self)
-            self.open_windows["settings"] = settings_window  # Store the window
+            self.open_windows["settings"] = settings_window
 
             # When the window is closed, remove it from open_windows
             def on_close():
                 settings_window.top.destroy()
                 if "settings" in self.open_windows:
                     del self.open_windows["settings"]
-                self.update_recording_led() # Update REC status when settings close
+                self.update_recording_led()  # Update REC status when settings close
 
             settings_window.top.protocol("WM_DELETE_WINDOW", on_close)
         else:
@@ -295,7 +295,7 @@ class GameBoyLauncher:
         self.games.clear()
         roms_dir = self.rom_directory
         if roms_dir is None:
-            self.rom_listbox.insert(tk.END, "Please select a ROM directory in Settings.")  # changed
+            self.rom_listbox.insert(tk.END, "Please select a ROM directory in Settings.")
             self.stats_label.configure(text="NO ROM DIRECTORY SELECTED")
             self.status_var.set("NO ROM DIRECTORY")
             self.update_led_status()
@@ -404,7 +404,7 @@ class GameBoyLauncher:
             else:
                 readme_path = "README.md"
 
-            with open(readme_path, "r", encoding="utf-8") as readme_file:  # Explicitly specify UTF-8
+            with open(readme_path, "r", encoding="utf-8") as readme_file:
                 readme_content = readme_file.read()
                 import markdown
                 html_content = markdown.markdown(readme_content)

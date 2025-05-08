@@ -40,12 +40,6 @@ class VideoCreator:
     def get_video_frame(self, emulator):
         """
         Gets a video frame from the emulator's screen image.
-
-        Args:
-            emulator: The emulator object.
-
-        Returns:
-            numpy.ndarray: The video frame as a NumPy array.
         """
         frame_np = np.array(emulator.screen.image)
         if frame_np.shape != (144, 160, 4):
@@ -55,12 +49,6 @@ class VideoCreator:
     def sanitize_game_title(self, gamerom):
         """
         Sanitizes the game title from the ROM path for use as a filename.
-
-        Args:
-            gamerom (str): The path to the game ROM file.
-
-        Returns:
-            str: The sanitized game title.
         """
         file_name = os.path.splitext(os.path.basename(gamerom))[0]
         cleaned_file_name = file_name.replace(" - ", "_").replace(" ", "_")
@@ -69,12 +57,6 @@ class VideoCreator:
     def merge_av(self):
         """
         Merges audio and video frames and writes them to a video file.
-
-        Args:
-            audio_frames (list): A list of audio frames as NumPy arrays.
-            video_frames (list): A list of video frames as NumPy arrays.
-            file_path (str): The path to the output video file.
-            emulator: The emulator object.
         """
         # Ensure video frames are in the correct format (RGB)
         self.video_frames = [frame[:, :, :3] for frame in self.video_frames]
