@@ -168,4 +168,3 @@ class KeybindsConfig:
             action: TKINTER_TO_SDL2.get(key, f"UNKNOWN_{key}")
             for action, key, in self.keybinds.items()
         }
-        
